@@ -27,7 +27,7 @@ title: Improve Cross-Architecture Generalization on Dataset Distillation
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://Distill-Generalization-Group.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
-github_username:  jekyllDistill-Generalization-Group
+github_username:  Distill-Generalization-Group
 
 # Build settings
 theme: minima
