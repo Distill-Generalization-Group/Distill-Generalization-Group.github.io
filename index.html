@@ -22,6 +22,10 @@
 </div>
 <div class="content">
   <h2 style="text-align:center;">Abstract</h2>
+  <a name="fig1">
+  <br>
+  <img class="summary-img" src="./files/overall.png" style="width:85%;" height="475"> <br>
+  </a>
   <p>Dataset distillation, a pragmatic approach in machine learning, aims to create a smaller synthetic dataset from a larger existing dataset.
     However, existing distillation methods primarily adopt a model-based paradigm, where the synthetic dataset inherits model-specific
     biases, limiting its generalizability to alternative models. In response to this constraint, we propose a novel methodology termed
@@ -32,18 +36,47 @@
 </div>
 <div class="content">
   <h2>Background</h2>
-  <p> Given a particular subject such as clock (shown in the real images on the left), it is very challenging to generate it in different contexts with state-of-the-art text-to-image models, while maintaining high fidelity to its key visual features. Even with dozens of iterations over a text prompt that contains a detailed description of the appearance of the clock (<em>"retro style yellow alarm clock with a white clock face and a yellow number three on the right part of the clock face in the jungle"</em>), the Imagen model [Saharia et al., 2022] can't reconstruct its key visual features (third column). Furthermore, even models whose text embedding lies in a shared language-vision space and can create semantic variations of the image, such as DALL-E2 [Ramesh et al., 2022], can neither reconstruct the appearance of the given subject nor modify the context (second column). In contrast, our approach (right) can synthesize the clock with high fidelity and in new contexts (<em>"a [V] clock in the jungle"</em>).</p>
-  <br>
-  <img class="summary-img" src="./files/background.png" style="width:100%;"> <br>
+  <p> As the structural complexity of neural network models continues to advance, 
+    deep learning has achieved remarkable success across diverse domains. However, 
+    the pursuit of enhanced performance in deeper networks needs a commensurate increase in the quantity of training data, 
+    resulting in a significant slowdown in training speed. Addressing this challenge, 
+    one viable approach involves reducing the size of the training dataset. Proposed by Wang et al., 
+    Dataset Distillation emerges as an effective method to achieve dataset size reduction while ensuring the efficacy of network 
+    training. The core objective of dataset distillation is the synthesis of a substantially smaller dataset derived from the 
+    original dataset, and a model trained on this synthesized dataset still exhibits robust performance on the original test dataset.</p>
+  <p>Intuitively, datasets generated through model-based methods show superior performance when tested on the architecture employed 
+    during the distillation process. However, a noticeable reduction in performance 
+    occurs when these datasets are assessed on alternative model architectures—a phenomenon we call as 
+    "performance reduction in cross-architecture." This raises the critical question of 
+    how to endow dataset distillation methods with the capability of cross-architecture generalization.  </p>
+  <p> 
+    In this study, we present a novel dataset distillation method designed to enhance cross-architecture generalization, 
+    building upon DC , a gradient matching-based approach. 
+    First, our method introduces the concept of "model pool", 
+    which is used to promote cross-architecture generalization ability and can be easily extensible to other 
+    existing model-based dataset distillation methods. Also, drawing inspiration from knowledge distillation, 
+    we leverage a similar strategy when deploying our distilled dataset on alternative model architectures. 
+    Experimental evaluations conducted on the CIFAR-10 dataset demonstrate that our proposed method outperforms 
+    the original DC method in cross-architecture generalization.
+  </p>
 </div>
 <div class="content">
   <h2>Approach</h2>
-  <p> Our method takes as input a few images (typically 3-5 images suffice, based on our experiments) of a subject (e.g., a specific dog) and the corresponding class name (e.g. "dog"), and returns a fine-tuned/"personalized'' text-to-image model that encodes a unique identifier that refers to the subject. Then, at inference, we can implant the unique identifier in different sentences to synthesize the subjects in difference contexts.</p>
-  <br>
-  <img class="summary-img" src="./files/high_level.png" style="width:100%;"> <br>
-  <p>Given ~3-5 images of a subject we fine tune a text-to-image diffusion in two steps: (a) fine tuning the low-resolution text-to-image model with the input images paired with a text prompt containing a unique identifier and the name of the class the subject belongs to (e.g., "A photo of a [T] dog”), in parallel, we apply a class-specific prior preservation loss, which leverages the semantic prior that the model has on the class and encourages it to generate diverse instances belong to the subject's class by injecting the class name in the text prompt (e.g., "A photo of a dog”). (b) fine-tuning the super resolution components with pairs of low-resolution and high-resolution images taken from our input images set, which enables us to maintain high-fidelity to small details of the subject.</p>
-  <br>
-  <img class="summary-img" src="./files/system.png" style="width:100%;"> <br>
+  <p> We propose the concept of model pool. The model pool is a set of different models with different architectures. 
+    Every model in the model pool has its own probability to be chosen. 
+    In the original model-based method, we may reinitialize the parameters of this model many times in the 
+    total training process, noting that the model architecture doesn't change yet. In our method, 
+    the model we use and reinitialize each time may be different and it is chosen from the model pool with 
+    a given probability. In this way, we can make our distilled dataset more general as it is not only 
+    trained on a specific architecture of the model but trained on multiple architectures of models in the model pool.</p>
+  <p> Besides model pool method we mentioned above, we will perform knowledge distillation on the distilled dataset. 
+    In other words, both the teacher model and student model are trained on the distilled data, 
+    and then we try to minimize the difference (KL divergence) between the two models and their 
+    classification loss (cross-entropy loss). The teacher model is fixed as ConvNet while the student can be various. 
+    We can test the generalization ability of different student models by directing their knowledge to 
+    the fixed teacher model as closely as possible.</p>
+  <p> The overall view of our work can be seen in this <a href="#fig1">picture</a> </p>  
+  
 </div>
 <div class="content">
   <h2>Results</h2>
